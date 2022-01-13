@@ -22,7 +22,7 @@ def _make_parser():
 
     def validate_profile_exists(p):
         profile_cmd = ['aws', 'configure', 'list-profiles']
-        profiles = subprocess.run(profile_cmd).decode("utf-8").split('\n')
+        profiles = subprocess.check_output(profile_cmd).decode("utf-8").split('\n')
         if not p in profiles:
             raise argparse.ArgumentTypeError(
                 f'Profile name must be available in `aws configure list-profiles`: {p}'
@@ -47,10 +47,10 @@ def _make_parser():
         type=validate_dir,
         required=True)
     parser.add_argument(
-        '-p', '--profile',
+        '--profile',
         help='aws cli profile for current snowball',
         type=validate_profile_exists,
-        required=True)  
+        required=True)
     parser.add_argument(
         '-i', '--ip',
         help='ip address of snowball',
@@ -70,7 +70,7 @@ def _make_parser():
         '--check_only',
         action='store_true'
     )
-    
+
     return parser
 
 
@@ -82,7 +82,7 @@ def transfer_files(
     target_dest: str
 ) -> None:
 
-    
+
     sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
     sync_bigfiles(source, awscli_profile, target_endpoint, target_dest)
 
@@ -98,8 +98,8 @@ def sync_smallfiles(
     find_cmd = [
     'find', source,
     '-name', '*.txt',
-    '-name', '*.json',
-    '-o'
+    '-o',
+    '-name', '*.json'
     ]
     tar_cmd = [
         'tar', '-c',
@@ -107,7 +107,7 @@ def sync_smallfiles(
         '-T', '-',
     ]
     sync_cmd = [
-        'aws', 's3', 'cp', 
+        'aws', 's3', 'cp',
         '--metadata', 'snowball-auto-extract=true',
         '--profile', awscli_profile,
         '--endpoint', target_endpoint,
@@ -124,7 +124,7 @@ def sync_smallfiles(
     subprocess.run(
         sync_cmd, stdin=tar_proc.stdout
     )
-    
+
 
 
 def sync_bigfiles(
@@ -169,10 +169,10 @@ def check_transfer(
     target_endpoint: str,
     target_bucket: str,
     target_prefix: str
-) -> dict[dict[str, list], dict[str, list]] | bool:
+) -> dict[dict[str, list], dict[str, list]]:
     get_files_on_source(drive_path)
     get_files_on_snowball(awscli_profile, target_endpoint, target_bucket, target_prefix)
-    
+
     difference = compare_source_snowball()
     if not difference:
         return False
@@ -212,7 +212,7 @@ def get_files_on_snowball(
         '--prefix', target_prefix
     ]
     output = subprocess.check_output(ls_cmd)
-    
+
     files_on_snowball = {(x['Key'].replace(target_prefix, ''), x['Size']) for x in json.loads(output)['Contents']}
     return files_on_snowball
 
@@ -220,8 +220,8 @@ def get_files_on_snowball(
 def compare_source_snowball(
     source_set: set,
     snowball_set: set,
-) -> dict[dict[str, list], dict[str, list]] | None:
-    
+) -> dict[dict[str, list], dict[str, list]]:
+
     if source_set == snowball_set:
         return None
     else:
@@ -236,19 +236,19 @@ def main():
     args = parser.parse_args()
 
     drive_path = pathlib.Path(args.drive)
-    drive_name = drive_path.basename()
+    drive_name = drive_path.name
     target_endpoint = f'http://{args.ip}:8080'
     target_dest = f's3://{args.bucket}/{args.prefix}/{drive_name}/'
 
     if not args.check_only:
-        transfer_files(drive_path, args.profile, target_endpoint, target_dest)
-    
+        transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest)
+
     differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
     if not differences:
         print('Drive transfer seems good')
     else:
         print(f'Something went wrong with the transfer\n:{differences}')
-        
+
 
 if __name__ == '__main__':
     main()

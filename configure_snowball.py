@@ -46,7 +46,7 @@ def _make_parser():
         type=validate_file,
         required=True)
     parser.add_argument(
-        '-u', '--unlock-code',
+        '-u', '--unlock_code',
         help='unlock code for a snowball job',
         type=validate_unlock,
         required=True)
@@ -55,7 +55,7 @@ def _make_parser():
         help='ip address of snowball',
         type=validate_ip,
         required=True)
-    
+
     return parser
 
 
@@ -64,9 +64,9 @@ def get_snowball_profiles() -> list:
     snowball_config = pathlib.Path.home().joinpath('.aws/snowball/config/snowball-edge.config')
     with open(snowball_config, 'r') as f:
         cfg = json.load(f)
-    
+
     return cfg['profiles'].keys()
-        
+
 
 def unlock_snowball(
     manifest_path: os.PathLike,
@@ -76,7 +76,7 @@ def unlock_snowball(
 
     profile = f'xfr-{datetime.now().strftime("%Y%m%d%H%M%S")}'
 
-    manifest_path.resolve()
+    pathlib.Path(manifest_path).resolve()
     unlock_cmd = [
         'snowballEdge', 'unlock-device',
         '--manifest-file', manifest_path,
@@ -84,11 +84,35 @@ def unlock_snowball(
         '--endpoint', device_ip,
         '--profile', profile
     ]
-    proc = subprocess.run(unlock_cmd)
+    proc = subprocess.run(unlock_cmd, timeout=3)
 
     if not profile in get_snowball_profiles():
         raise Exception(f'Snowball was not unlocked successfully with following command:\n{" ".join(proc.args)}')
-    
+
+    return profile
+
+
+def configure_snowball(
+    manifest_path: os.PathLike,
+    unlock_code: str,
+    device_ip: str
+) -> str:
+
+    profile = f'xfr-{datetime.now().strftime("%Y%m%d%H%M%S")}'
+
+    pathlib.Path(manifest_path).resolve()
+    unlock_cmd = [
+        'snowballEdge', 'configure',
+        '--manifest-file', manifest_path,
+        '--unlock-code', unlock_code,
+        '--endpoint', device_ip,
+        '--profile', profile
+    ]
+    proc = subprocess.run(unlock_cmd, timeout=3)
+
+    if not profile in get_snowball_profiles():
+        raise Exception(f'Snowball was not unlocked successfully with following command:\n{" ".join(proc.args)}')
+
     return profile
 
 
@@ -126,7 +150,7 @@ def setup_snowball(
     profile = unlock_snowball(manifest_path, unlock_code, device_ip)
     access_key = get_snowball_access_key(profile)
     secret_key = get_snowball_secret_key(profile, access_key)
-    
+
     return profile, access_key, secret_key
 
 
@@ -152,13 +176,13 @@ def config_awscli(
 
 
 def check_snowball_access(profile, ip):
-    
+
     s3ls_cmd = [
         'aws', 's3', 'ls',
         '--profile', profile,
         '--endpoint', f'http://{ip}:8080',
     ]
-    
+
     try:
         subprocess.run(s3ls_cmd, timeout=1)
     except subprocess.TimeoutExpired as e:
@@ -171,9 +195,9 @@ def main():
     parser = _make_parser()
     args = parser.parse_args()
 
-    snowball_profile, access_key, secret_key = setup_snowball(args.manifest, args.unlock, args.ip)
+    snowball_profile, access_key, secret_key = setup_snowball(args.manifest, args.unlock_code, args.ip)
     awscli_profile = config_awscli(access_key,secret_key)
-    
+
     if check_snowball_access(awscli_profile, args.ip):
         print(f'SnowballEdge now accessible via AWS CLI using:\nProfile: {awscli_profile}\nIP: http:\\{args.ip}:8080)')
 
