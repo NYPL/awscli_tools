@@ -170,10 +170,10 @@ def check_transfer(
     target_bucket: str,
     target_prefix: str
 ) -> dict[dict[str, list], dict[str, list]]:
-    get_files_on_source(drive_path)
-    get_files_on_snowball(awscli_profile, target_endpoint, target_bucket, target_prefix)
+    source_set = get_files_on_source(drive_path)
+    snowball_set = get_files_on_snowball(awscli_profile, target_endpoint, target_bucket, target_prefix)
 
-    difference = compare_source_snowball()
+    difference = compare_source_snowball(source_set, snowball_set)
     if not difference:
         return False
     else:
