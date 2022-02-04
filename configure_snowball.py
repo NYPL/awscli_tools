@@ -7,7 +7,6 @@ import pathlib
 import re
 import subprocess
 import time
-from xmlrpc.client import Boolean
 
 
 def _make_parser():
