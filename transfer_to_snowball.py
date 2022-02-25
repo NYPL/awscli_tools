@@ -79,11 +79,12 @@ def transfer_files(
     drive_name: str,
     awscli_profile: str,
     target_endpoint: str,
-    target_dest: str
+    target_dest: str,
+    restart: bool=False
 ) -> None:
 
-
-    sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
+    if not restart:
+        sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
     sync_bigfiles(source, awscli_profile, target_endpoint, target_dest)
 
 
@@ -150,17 +151,18 @@ def sync_bigfiles(
         '--include', '*.wav',
         '--include', '*.scc',
         '--include', '*.srt',
+        '--include', '*Images*',
         '--exclude', '.fsevents*',
         '--exclude', '.Spotlight*',
         '--exclude', '.Trashes/*',
         '--exclude', '$RECYCLE.BIN/*',
         '--exclude', '._.*',
         '--exclude', '*.DS_Store',
-        source,
+        str(source),
         target_dest
     ]
 
-    subprocess.run(sync_cmd)
+    proc = subprocess.run(sync_cmd)
 
 
 def check_transfer(
@@ -229,6 +231,7 @@ def compare_source_snowball(
             'source_diff': source_set - snowball_set,
             'snowball_diff': snowball_set - source_set
         }
+        return difference
 
 
 def main():
@@ -241,13 +244,16 @@ def main():
     target_dest = f's3://{args.bucket}/{args.prefix}/{drive_name}/'
 
     if not args.check_only:
-        transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest)
+        transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest, restart=True)
 
     differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
     if not differences:
         print('Drive transfer seems good')
     else:
-        print(f'Something went wrong with the transfer\n:{differences}')
+        print([x[0] for x in differences['source_diff']])
+        bytes_remaining = sum([x[1] for x in differences['source_diff']])
+        files_remaining = len(differences['source_diff'])
+        print(f'{bytes_remaining} bytes ({files_remaining} files) to be transferred from source drive')
 
 
 if __name__ == '__main__':
