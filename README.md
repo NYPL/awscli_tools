@@ -70,6 +70,7 @@ For an object named `prefix1/prefix2/name.ext` stored in the bucket `bucket1`
         ...
     ]
 }
+```
 
 ### How do I delete things?
 
