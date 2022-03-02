@@ -70,5 +70,28 @@ For an object named `prefix1/prefix2/name.ext` stored in the bucket `bucket1`
         ...
     ]
 }
+
+### How do I delete things?
+
+To delete one thing, use the `aws s3 rm` command.
+
 ```
+> aws s3 rm s3://bucket1/prefix1/name.ext
+deleting: prefix1/name.ext
+```  
+      
+To delete everything in a bucket or prefix, add the `--recursive` argument.
+
+```
+> aws s3 rm --recursive s3://bucket1/prefix1/
+deleting: prefix1/name.ext
+```  
+
+To delete more than one thing but not everything in a bucket or prefix, add `--exclude` and `--include` arguments.
+Always start with `--exclude '\*'` and then add the files you want to delete by including wildcard patterns.
+
+```
+> aws s3 rm --recursive --exclude '\*' --include '\*.ext' 's3://bucket1/prefix1/
+deleting: prefix1/name.ext
+```  
 
