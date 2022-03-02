@@ -43,7 +43,7 @@ You will have to develop regular expressions that are more precise since `.*` wi
       some.pdf
 > aws s3 ls s3://bucket1/Downloads/ | grep ".pdf"
       some.pdf
-``
+```
 
 
 ### How do I get the size of a bucket?
