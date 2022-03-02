@@ -18,6 +18,7 @@ date  size  prefix1/prefix2/name.ext
 ```
 
 #### A longer explanation about folders and prefixes
+
 There are no `folders` in S3. Instead, the entire path is treated as a very long file name, e.g. a file `name.ext` stored in the folder `prefix1` gets the object name `prefix1/name.ext`.
 To retain some of the utility of folder heirarchies, AWS CLI parses every string that ends with `/` as a 'prefix'.
 Prefixes behave similar, but not the same as a folder path.
@@ -30,6 +31,20 @@ These two object names are not the same `/Users/username//Downloads/` and `/User
       PRE   /
       PRE   Downloads/
 ```
+
+### How do I use a wildcard in a list command?
+
+The `aws s3 ls` command does not have wildcard support.
+The easiest way to replicate this is to pipe the results to `grep`.
+You will have to develop regular expressions that are more precise since `.*` will match across folder separators.
+
+```
+> ls ~/Downloads/*.pdf
+      some.pdf
+> aws s3 ls s3://bucket1/Downloads/ | grep ".pdf"
+      some.pdf
+``
+
 
 ### How do I get the size of a bucket?
 
