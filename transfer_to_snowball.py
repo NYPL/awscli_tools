@@ -70,6 +70,10 @@ def _make_parser():
         '--check_only',
         action='store_true'
     )
+    parser.add_argument(
+        '--eavie',
+        action='store_true'
+    )
 
     return parser
 
@@ -85,6 +89,7 @@ def transfer_files(
 
     if not restart:
         sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
+
     sync_bigfiles(source, awscli_profile, target_endpoint, target_dest)
 
 
@@ -97,10 +102,10 @@ def sync_smallfiles(
 ) -> None:
 
     find_cmd = [
-    'find', source,
-    '-name', '*.txt',
-    '-o',
-    '-name', '*.json'
+        'find', source,
+        '-name', '*.txt',
+        '-o',
+        '-name', '*.json'
     ]
     tar_cmd = [
         'tar', '-c',
@@ -234,6 +239,33 @@ def compare_source_snowball(
         return difference
 
 
+def transfer_eavie_files(
+    source: os.PathLike,
+    awscli_profile: str,
+    target_endpoint: str,
+    target_dest: str
+) -> None:
+
+    sync_cmd = [
+        'aws', 's3', 'sync',
+        '--profile', awscli_profile,
+        '--endpoint', target_endpoint,
+        '--exclude', '*',
+        '--include', '*_em.*',
+        '--include', '*_sc.*',
+        '--exclude', '.fsevents*',
+        '--exclude', '.Spotlight*',
+        '--exclude', '.Trashes/*',
+        '--exclude', '$RECYCLE.BIN/*',
+        '--exclude', '._.*',
+        '--exclude', '*.DS_Store',
+        str(source),
+        target_dest
+    ]
+
+    proc = subprocess.run(sync_cmd)
+
+
 def main():
     parser = _make_parser()
     args = parser.parse_args()
@@ -243,17 +275,20 @@ def main():
     target_endpoint = f'http://{args.ip}:8080'
     target_dest = f's3://{args.bucket}/{args.prefix}/{drive_name}/'
 
-    if not args.check_only:
-        transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest, restart=True)
+    if not args.eavie:
+        if not args.check_only:
+            transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest, restart=True)
 
-    differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
-    if not differences:
-        print('Drive transfer seems good')
+        differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
+        if not differences:
+            print('Drive transfer seems good')
+        else:
+            print([x[0] for x in differences['source_diff']])
+            bytes_remaining = sum([x[1] for x in differences['source_diff']])
+            files_remaining = len(differences['source_diff'])
+            print(f'{bytes_remaining} bytes ({files_remaining} files) to be transferred from source drive')
     else:
-        print([x[0] for x in differences['source_diff']])
-        bytes_remaining = sum([x[1] for x in differences['source_diff']])
-        files_remaining = len(differences['source_diff'])
-        print(f'{bytes_remaining} bytes ({files_remaining} files) to be transferred from source drive')
+        transfer_eavie_files(drive_path, args.profile, target_endpoint, f's3://{args.bucket}/{drive_name}')
 
 
 if __name__ == '__main__':
