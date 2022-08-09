@@ -176,7 +176,7 @@ def check_transfer(
     target_endpoint: str,
     target_bucket: str,
     target_prefix: str
-) -> dict[dict[str, list], dict[str, list]]:
+) -> dict:
     source_set = get_files_on_source(drive_path)
     snowball_set = get_files_on_snowball(awscli_profile, target_endpoint, target_bucket, target_prefix)
 
@@ -187,7 +187,7 @@ def check_transfer(
         return difference
 
 
-def get_files_on_source(drive_path) -> set[tuple[str, int]]:
+def get_files_on_source(drive_path) -> set:
     drive_path = pathlib.Path(drive_path)
     root_files = drive_path.glob('*')
     audio_bag_files = drive_path.joinpath('Audio').glob('**/*')
@@ -208,7 +208,7 @@ def get_files_on_snowball(
     target_endpoint: str,
     target_bucket: str,
     target_prefix: str
-) -> set[tuple[str, int]]:
+) -> set:
 
     ls_cmd = [
         'aws', 's3api', 'list-objects-v2',
@@ -227,7 +227,7 @@ def get_files_on_snowball(
 def compare_source_snowball(
     source_set: set,
     snowball_set: set,
-) -> dict[dict[str, list], dict[str, list]]:
+) -> dict:
 
     if source_set == snowball_set:
         return None
