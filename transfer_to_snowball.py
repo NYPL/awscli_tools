@@ -21,7 +21,7 @@ def _make_parser():
         return p
 
     def validate_profile_exists(p):
-        profile_cmd = ['aws', 'configure', 'get', 'aws_access_key_id', '--profile', p]
+        profile_cmd = ['python', '-m', 'awscli', 'configure', 'get', 'aws_access_key_id', '--profile', p]
         try:
             subprocess.check_output(profile_cmd)
         except subprocess.CalledProcessError as e:
@@ -115,7 +115,7 @@ def sync_smallfiles(
         '-T', '-',
     ]
     sync_cmd = [
-        'aws', 's3', 'cp',
+        'python', '-m', 'awscli', 's3', 'cp',
         '--metadata', 'snowball-auto-extract=true',
         '--profile', awscli_profile,
         '--endpoint', target_endpoint,
@@ -143,7 +143,7 @@ def sync_bigfiles(
 ) -> None:
 
     sync_cmd = [
-        'aws', 's3', 'sync',
+        'python', '-m', 'awscli', 's3', 'sync',
         '--profile', awscli_profile,
         '--endpoint', target_endpoint,
         '--exclude', '*',
@@ -213,7 +213,7 @@ def get_files_on_snowball(
 ) -> set:
 
     ls_cmd = [
-        'aws', 's3api', 'list-objects-v2',
+        'python', '-m', 'awscli', 's3api', 'list-objects-v2',
         '--no-paginate',
         '--profile', awscli_profile,
         '--endpoint', target_endpoint,
@@ -249,7 +249,7 @@ def transfer_eavie_files(
 ) -> None:
 
     sync_cmd = [
-        'aws', 's3', 'sync',
+        'python', '-m', 'awscli', 's3', 'sync',
         '--profile', awscli_profile,
         '--endpoint', target_endpoint,
         '--exclude', '*',
