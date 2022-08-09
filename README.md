@@ -2,7 +2,41 @@
 
 Some Python and shell scripts to do things with AWS CLI stuff
 
-## Crib Sheet
+## Installation Instructions
+
+Scripts in this repository depends on the following tools:
+
+* snowballEdge (latest version)
+* awscli (v1.16.14)
+* python (v.3.7.x)
+
+Because the awscli version is several years out-of-date, it's recommended to create a virtual environment for this repository and to install the correct version of awscli in that environment.
+
+### Creating a virtualenv with pyenv
+
+This method will create a virtual environment that is activated every time you change directory to this repo.
+
+```sh
+brew install pyenv pyenv-virtualenv
+cd dir/for/this/repo
+pyenv install 3.7.13
+pyenv virtualenv 3.7.13 snowball
+pyenv local snowball
+pip install awscli==1.16.14
+```
+
+To test
+
+```sh
+python -m awscli --version
+```
+
+The output should read `aws-cli/1.16.14 Python/3.7.13 ...`
+
+To use this specific version of `awscli`, start any command with `python -m awscli` instead of `aws`.
+For example, `python -m awscli s3 ls s3://bucket1/prefix1` instead of `aws s3 ls s3://bucket1/prefix1`.
+
+## AWS CLI Crib Sheet
 
 ### How do I see the contents of a 'folder'?
 
@@ -72,7 +106,7 @@ Note, the syntax for methods in `s3api` is different from `s3`
 For an object named `prefix1/prefix2/name.ext` stored in the bucket `bucket1`
 
 ```
-> aws s3api list-objects-v2 --bucket bucket1 --prefix prefix1 
+> aws s3api list-objects-v2 --bucket bucket1 --prefix prefix1
 {
     "Contents": [
         {
@@ -94,14 +128,14 @@ To delete one thing, use the `aws s3 rm` command.
 ```
 > aws s3 rm s3://bucket1/prefix1/name.ext
 deleting: prefix1/name.ext
-```  
-      
+```
+
 To delete everything in a bucket or prefix, add the `--recursive` argument.
 
 ```
 > aws s3 rm --recursive s3://bucket1/prefix1/
 deleting: prefix1/name.ext
-```  
+```
 
 To delete more than one thing but not everything in a bucket or prefix, add `--exclude` and `--include` arguments.
 Always start with `--exclude '\*'` and then add the files you want to delete by including wildcard patterns.
@@ -109,5 +143,5 @@ Always start with `--exclude '\*'` and then add the files you want to delete by 
 ```
 > aws s3 rm --recursive --exclude '\*' --include '\*.ext' 's3://bucket1/prefix1/
 deleting: prefix1/name.ext
-```  
+```
 

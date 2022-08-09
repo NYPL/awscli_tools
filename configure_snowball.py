@@ -149,7 +149,7 @@ def get_snowball_access_key(profile: str) -> tuple[str, str]:
 
 
 def get_snowball_secret_key(profile: str, access_key: str) -> tuple[str, str]:
-    
+
     secret_key_cmd = [
         'snowballEdge', 'get-secret-access-key',
         '--profile', profile,
@@ -180,7 +180,7 @@ def setup_snowball(
                 'Please run `snowballEdge configure` command and follow its instructions')
     else:
         profile = unlock_snowball(manifest_path, unlock_code, device_ip)
-    
+
     access_key = get_snowball_access_key(profile)
     secret_key = get_snowball_secret_key(profile, access_key)
 
@@ -219,7 +219,7 @@ def config_awscli(
     profile = f'cli-{datetime.now().strftime("%Y%m%d")}'
 
     config_base_cmd = [
-        'aws', 'configure',
+        'python', '-m', 'awscli', 'configure',
         '--profile', profile,
         'set'
     ]
@@ -232,14 +232,14 @@ def config_awscli(
 
     for param in params:
         subprocess.run(config_base_cmd + param)
-    
+
     return profile
 
 
 def check_snowball_access(profile, ip):
 
     s3ls_cmd = [
-        'aws', 's3', 'ls',
+        'python', '-m', 'awscli', 's3', 'ls',
         '--profile', profile,
         '--endpoint', f'http://{ip}:8080',
     ]
