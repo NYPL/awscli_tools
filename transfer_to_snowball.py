@@ -21,12 +21,14 @@ def _make_parser():
         return p
 
     def validate_profile_exists(p):
-        profile_cmd = ['aws', 'configure', 'list-profiles']
-        profiles = subprocess.check_output(profile_cmd).decode("utf-8").split('\n')
-        if not p in profiles:
-            raise argparse.ArgumentTypeError(
-                f'Profile name must be available in `aws configure list-profiles`: {p}'
-            )
+        profile_cmd = ['aws', 'configure', 'get', 'aws_access_key_id', '--profile', p]
+        try:
+            subprocess.check_output(profile_cmd)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 255:
+                raise argparse.ArgumentTypeError(
+                    f'Profile name must be configured in ~/.aws/credentials: {p}'
+                )
 
         return p
 
