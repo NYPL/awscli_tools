@@ -35,7 +35,19 @@ python -m awscli --version
 
 The output should read `aws-cli/1.16.14 Python/3.7.13 ...`
 
-To use this specific version of `awscli`, start any command with `python -m awscli` instead of `aws`.
+
+
+## Using awscli_tools
+
+To use the virtual environment from the installation, your current working directory must be the in the repo.
+
+```sh
+cd dir/for/this/repo
+python transfer_to_snowball.py
+```
+
+While in this general, any system installation of `awscli` is still available via `aws`.
+To use the virtual environment version of `awscli`, use `python -m awscli` instead of `aws`.
 For example, `python -m awscli s3 ls s3://bucket1/prefix1` instead of `aws s3 ls s3://bucket1/prefix1`.
 
 ## AWS CLI Crib Sheet
