@@ -1,0 +1,25 @@
+# OS X
+.DS_Store
+
+#VSCode
+.vscode/*
+
+# Logs
+*.log
+
+# Python
+__pycache__/*
+*.pyc
+.cache/*
+.coverage
+.eggs/*
+*.egg-info/*
+.test/*
+test/*
+venv/*
+
+Pipfile
+Pipfile.lock
+pyproject.toml
+.python-version
+
