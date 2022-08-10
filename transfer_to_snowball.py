@@ -1,11 +1,9 @@
 import argparse
-from ensurepip import version
 import json
 import os
 import pathlib
 import re
 import subprocess
-from sys import path
 
 
 def _make_parser():
@@ -231,18 +229,31 @@ def get_files_on_snowball(
     target_bucket: str,
     target_prefix: str
 ) -> set:
+    
+    def ls_call(contents = [], starting_token = None):
+        ls_cmd = [
+            'python', '-m', 'awscli', 's3api', 'list-objects',
+            '--profile', awscli_profile,
+            '--endpoint', target_endpoint,
+            '--bucket', target_bucket,
+            '--prefix', target_prefix
+        ]
+        if starting_token:
+            ls_cmd.extend([
+                '--starting-token', starting_token
+            ])
+        output = subprocess.check_output(ls_cmd)
 
-    ls_cmd = [
-        'python', '-m', 'awscli', 's3api', 'list-objects-v2',
-        '--no-paginate',
-        '--profile', awscli_profile,
-        '--endpoint', target_endpoint,
-        '--bucket', target_bucket,
-        '--prefix', target_prefix
-    ]
-    output = subprocess.check_output(ls_cmd)
+        if output:
+            contents.extend(json.loads(output)['Contents'])
+            #paginate until no additional returns
+            ls_call(contents, contents[-1]['Key'])
 
-    files_on_snowball = {(x['Key'].replace(target_prefix, ''), x['Size']) for x in json.loads(output)['Contents']}
+        return contents
+
+    contents = ls_call()
+
+    files_on_snowball = {(x['Key'].replace(target_prefix, ''), x['Size']) for x in contents}
     return files_on_snowball
 
 
