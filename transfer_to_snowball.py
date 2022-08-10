@@ -177,6 +177,7 @@ def sync_bigfiles(
         '--include', '*.scc',
         '--include', '*.srt',
         '--include', '*Images*',
+        '--include', '.xlsx',
         '--exclude', '.fsevents*',
         '--exclude', '.Spotlight*',
         '--exclude', '.Trashes/*',
