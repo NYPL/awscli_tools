@@ -16,8 +16,10 @@ Because the awscli version is several years out-of-date, it's recommended to cre
 
 This method will create a virtual environment that is activated every time you change directory to this repo.
 
+Install [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) according to your preferred method.
+Do not forget to setup your shell environment.
+
 ```sh
-brew install pyenv pyenv-virtualenv
 cd dir/for/this/repo
 pyenv install 3.7.13
 pyenv virtualenv 3.7.13 snowball
