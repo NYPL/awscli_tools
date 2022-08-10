@@ -1,5 +1,5 @@
 import argparse
-import glob
+from ensurepip import version
 import json
 import os
 import pathlib
@@ -78,6 +78,26 @@ def _make_parser():
     )
 
     return parser
+
+
+def check_awscli_version() -> str:
+
+    version_cmd = [
+        'python', '-m', 'awscli', '--version'
+    ]
+
+    output = subprocess.run(version_cmd, capture_output=True)
+    if output.returncode != 0:
+        raise SystemError('awscli not available to python as a module')
+
+    pattern = r'^aws-cli/([0-9.]+)'
+    version = re.search(pattern, output.stdout.decode()).group(1)
+    if not version == '1.16.14':
+        raise SystemError(
+            f'awscli should be v1.16.14 for snowball transfers, current version: {version}'
+        )
+
+    return
 
 
 def transfer_files(
@@ -269,6 +289,8 @@ def transfer_eavie_files(
 
 
 def main():
+    check_awscli_version()
+
     parser = _make_parser()
     args = parser.parse_args()
 
