@@ -8,7 +8,7 @@ Scripts in this repository depends on the following tools:
 
 * snowballEdge (latest version)
 * awscli (v1.16.14)
-* python (v.3.7.x)
+* python (v.3.9.x)
 
 Because the awscli version is several years out-of-date, it's recommended to create a virtual environment for this repository and to install the correct version of awscli in that environment.
 
