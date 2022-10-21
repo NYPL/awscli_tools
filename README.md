@@ -21,8 +21,8 @@ Do not forget to setup your shell environment.
 
 ```sh
 cd dir/for/this/repo
-pyenv install 3.7.13
-pyenv virtualenv 3.7.13 snowball
+pyenv install 3.9.6
+pyenv virtualenv 3.9.6 snowball
 pyenv local snowball
 pip install awscli==1.16.14
 ```
@@ -33,7 +33,7 @@ To test
 python -m awscli --version
 ```
 
-The output should read `aws-cli/1.16.14 Python/3.7.13 ...`
+The output should read `aws-cli/1.16.14 Python/3.9.6 ...`
 
 
 
@@ -46,7 +46,7 @@ cd dir/for/this/repo
 python transfer_to_snowball.py
 ```
 
-While in this general, any system installation of `awscli` is still available via `aws`.
+While in this directory, calling any `awscli` tool will invoke the system installation of `awscli`.
 To use the virtual environment version of `awscli`, use `python -m awscli` instead of `aws`.
 For example, `python -m awscli s3 ls s3://bucket1/prefix1` instead of `aws s3 ls s3://bucket1/prefix1`.
 
