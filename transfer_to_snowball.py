@@ -313,7 +313,7 @@ def main():
 
     if not args.eavie:
         if not args.check_only:
-            transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest, restart=True)
+            transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest)
 
         differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
         if not differences:
