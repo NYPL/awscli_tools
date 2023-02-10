@@ -103,12 +103,10 @@ def transfer_files(
     drive_name: str,
     awscli_profile: str,
     target_endpoint: str,
-    target_dest: str,
-    restart: bool=False
+    target_dest: str
 ) -> None:
 
-    if not restart:
-        sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
+    sync_smallfiles(source, drive_name, awscli_profile, target_endpoint, target_dest)
 
     sync_bigfiles(source, awscli_profile, target_endpoint, target_dest)
 
@@ -313,7 +311,7 @@ def main():
 
     if not args.eavie:
         if not args.check_only:
-            transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest, restart=True)
+            transfer_files(drive_path, drive_name, args.profile, target_endpoint, target_dest)
 
         differences = check_transfer(drive_path, args.profile, target_endpoint, args.bucket, f'{args.prefix}/{drive_name}')
         if not differences:
