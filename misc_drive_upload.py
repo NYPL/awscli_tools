@@ -44,53 +44,42 @@ def _make_parser():
 
     return parser
 
-# ADD STORAGE_CLASS in sync command?
+
 
 def transfer_files(
     source: os.PathLike,
     target_dest: str,
-    metadata_only
+    metadata_only: bool
 ) -> None:
 
     sync_smallfiles(source, target_dest)
 
-    # if not metadata_only:
-    #     sync_bigfiles(source, target_dest)
+    if not metadata_only:
+       sync_bigfiles(source, target_dest)
 
 
 def sync_smallfiles(
     source: os.PathLike,
     target_dest: str
 ) -> None:
-    
-    #folders = [x for x in source.iterdir() if x.is_dir()]
-    
-  
-    find_cmd = [
-        'find', source,
-        '-name', '*.txt',
-        '-o',
-        '-name', '*.json'
-    ]
+
     sync_cmd = [
-        'python', '-m', 'aws', 's3', 'cp',
+        'python', '-m', 'awscli', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
-        '-',
+        '--include', '*.txt',
+        '--include', '*.json',
+        '--exclude', '.fsevents*',
+        '--exclude', '.Spotlight*',
+        '--exclude', '.Trashes/*',
+        '--exclude', '$RECYCLE.BIN/*',
+        '--exclude', '._.*',
+        '--exclude', '*.DS_Store',
+        str(source),
         target_dest
     ]
 
-    find_proc = subprocess.Popen(
-        find_cmd, stdout=subprocess.PIPE
-    )
-            
-                
-    # tar_proc = subprocess.Popen(
-    #     tar_cmd, stdin=find_proc.stdout, stdout=subprocess.PIPE
-    # )
-    subprocess.run(
-        sync_cmd, stdin=find_proc.stdout
-    )
+    subprocess.run(sync_cmd)
 
 def sync_bigfiles(
     source: os.PathLike,
@@ -98,7 +87,7 @@ def sync_bigfiles(
 ) -> None:
 
     sync_cmd = [
-        'aws', 's3', 'sync',
+        'python', '-m', 'awscli', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--exclude', '*',
@@ -166,7 +155,7 @@ def get_files_on_deeparchive(
     
     def ls_call(contents = [], starting_token = None):
         ls_cmd = [
-            'aws', 's3api', 'list-objects',
+            'python', '-m', 'awscli', 's3api', 'list-objects',
             '--bucket', target_bucket,
             '--prefix', target_prefix
         ]
@@ -215,14 +204,14 @@ def main():
     if not args.check_only:
         transfer_files(drive_path, target_dest, args.metadata_only)
 
-    # differences = check_transfer(drive_path, args.bucket, f'{args.prefix}/{drive_name}')
-    # if not differences:
-    #     print('Drive transfer seems good')
-    # else:
-    #     print([x[0] for x in differences['source_diff']])
-    #     bytes_remaining = sum([x[1] for x in differences['source_diff']])
-    #     files_remaining = len(differences['source_diff'])
-    #     print(f'{bytes_remaining} bytes ({files_remaining} files) to be transferred from source drive')
+    differences = check_transfer(drive_path, args.bucket, f'{args.prefix}/{drive_name}')
+    if not differences:
+        print('Drive transfer seems good')
+    else:
+        print([x[0] for x in differences['source_diff']])
+        bytes_remaining = sum([x[1] for x in differences['source_diff']])
+        files_remaining = len(differences['source_diff'])
+        print(f'{bytes_remaining} bytes ({files_remaining} files) to be transferred from source drive')
 
 if __name__ == '__main__':
     main()
