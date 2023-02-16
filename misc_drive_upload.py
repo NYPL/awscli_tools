@@ -144,7 +144,7 @@ def get_files_on_source(drive_path) -> set:
 
     for file_list in [root_files, audio_bag_files, video_bag_files, film_bag_files]:
         for path in file_list:
-            if path.is_file() and path.suffix != '.txt' and path.suffix != '.json':
+            if path.is_file():
                 manifest.append((str(path).replace(str(drive_path), ''), path.stat().st_size))
 
     return set(manifest)
