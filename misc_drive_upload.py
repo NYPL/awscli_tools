@@ -75,6 +75,7 @@ def sync_smallfiles(
         '--exclude', '$RECYCLE.BIN/*',
         '--exclude', '._.*',
         '--exclude', '*.DS_Store',
+        '--exclude', '.com.apple.timemachine.donotpresent',
         str(source),
         target_dest
     ]
@@ -110,6 +111,7 @@ def sync_bigfiles(
         '--exclude', '$RECYCLE.BIN/*',
         '--exclude', '._.*',
         '--exclude', '*.DS_Store',
+        '--exclude', '.com.apple.timemachine.donotpresent',
         str(source),
         target_dest
     ]
