@@ -64,7 +64,7 @@ def sync_smallfiles(
 ) -> None:
 
     sync_cmd = [
-        'python', '-m', 'awscli', 's3', 'sync',
+        'aws', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--include', '*.txt',
@@ -87,7 +87,7 @@ def sync_bigfiles(
 ) -> None:
 
     sync_cmd = [
-        'python', '-m', 'awscli', 's3', 'sync',
+        'aws', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--exclude', '*',
@@ -155,7 +155,7 @@ def get_files_on_deeparchive(
     
     def ls_call(contents = [], starting_token = None):
         ls_cmd = [
-            'python', '-m', 'awscli', 's3api', 'list-objects',
+            'aws', 's3api', 'list-objects',
             '--bucket', target_bucket,
             '--prefix', target_prefix
         ]
