@@ -128,7 +128,7 @@ def check_transfer(
     source_set = get_files_on_source(drive_path)
     deeparchive_set = get_files_on_deeparchive(target_bucket, target_prefix)
 
-    difference = compare_source_snowball(source_set, deeparchive_set)
+    difference = compare_source_deeparchive(source_set, deeparchive_set)
     if not difference:
         return False
     else:
