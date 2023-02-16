@@ -176,11 +176,11 @@ def get_files_on_deeparchive(
 
     contents = ls_call()
 
-    files_on_snowball = {(x['Key'].replace(target_prefix, ''), x['Size']) for x in contents}
-    return files_on_snowball
+    files_on_deeparchive = {(x['Key'].replace(target_prefix, ''), x['Size']) for x in contents}
+    return files_on_deeparchive
 
 
-def compare_source_snowball(
+def compare_source_deeparchive(
     source_set: set,
     deeparchive_set: set,
 ) -> dict:
