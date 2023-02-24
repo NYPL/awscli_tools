@@ -64,7 +64,7 @@ def sync_smallfiles(
 ) -> None:
 
     sync_cmd = [
-        'aws', 's3', 'sync',
+        'python3', '-m', 'awscli', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--include', '*.txt',
@@ -101,7 +101,7 @@ def sync_bigfiles(
 ) -> None:
 
     sync_cmd = [
-        'aws', 's3', 'sync',
+        'python3', '-m', 'awscli', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--exclude', '*',
