@@ -67,21 +67,9 @@ def sync_smallfiles(
         'python3', '-m', 'awscli', 's3', 'sync',
         '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
+        '--exclude', '*',
         '--include', '*.txt',
         '--include', '*.json',
-        '--exclude', '*.mkv',
-        '--exclude', '*xml.gz',
-        '--exclude', '*.mp4',
-        '--exclude', '*.mov',
-        '--exclude', '*.flac',
-        '--exclude', '*.dv',
-        '--exclude', '*.iso',
-        '--exclude', '*.cue',
-        '--exclude', '*.wav',
-        '--exclude', '*.scc',
-        '--exclude', '*.srt',
-        '--exclude', '*Images*',
-        '--exclude', '*.xlsx',
         '--exclude', '.fsevents*',
         '--exclude', '.Spotlight*',
         '--exclude', '.Trashes/*',
@@ -137,7 +125,7 @@ def check_transfer(
     target_bucket: str,
     target_prefix: str
 ) -> dict:
-    
+
     source_set = get_files_on_source(drive_path)
     deeparchive_set = get_files_on_deeparchive(target_bucket, target_prefix)
 
@@ -167,7 +155,7 @@ def get_files_on_deeparchive(
     target_bucket: str,
     target_prefix: str
 ) -> set:
-    
+
     def ls_call(contents = [], starting_token = None):
         ls_cmd = [
             'aws', 's3api', 'list-objects',
