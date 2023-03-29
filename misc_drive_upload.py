@@ -65,7 +65,6 @@ def sync_smallfiles(
 
     sync_cmd = [
         'python3', '-m', 'awscli', 's3', 'sync',
-        '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--exclude', '*',
         '--include', '*.txt',
@@ -90,7 +89,6 @@ def sync_bigfiles(
 
     sync_cmd = [
         'python3', '-m', 'awscli', 's3', 'sync',
-        '--dryrun',
         '--storage-class', 'DEEP_ARCHIVE',
         '--exclude', '*',
         '--include', '*.mkv',
