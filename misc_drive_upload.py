@@ -18,7 +18,7 @@ def _make_parser():
         return p
 
     parser = argparse.ArgumentParser()
-    parser.description = 'transfer AMI drive to MPS-deeparchive, check includes/excludes if used for other purpose'
+    parser.description = 'transfer AMI drive to S3 Deep Archive class, check includes/excludes if used for other purpose'
     parser.add_argument(
         '-d', '--drive',
         help='path to drive to transfer',
