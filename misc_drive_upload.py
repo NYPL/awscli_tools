@@ -71,6 +71,7 @@ def sync_smallfiles(
         '--include', '*.json',
         '--include', '*.jpg',
         '--include', '*.JPG',
+        '--include', '*.old',
         '--exclude', '.fsevents*',
         '--exclude', '.Spotlight*',
         '--exclude', '.Trashes/*',
